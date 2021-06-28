@@ -19,10 +19,10 @@ def marker_color(elevation):
         return "orange"
 
 
-fg = folium.FeatureGroup(name="My Map")
+fgv = folium.FeatureGroup(name="Volcanoes")
 
 for lat, lon, name, elev in zip(latitude, longitude, volcano_name, elevation):
-    fg.add_child(
+    fgv.add_child(
         folium.CircleMarker(
             location=[lat, lon],
             radius=6,
@@ -33,11 +33,24 @@ for lat, lon, name, elev in zip(latitude, longitude, volcano_name, elevation):
         )
     )
 
-fg.add_child(
-    folium.GeoJson(data=(open("mapping/world.json", "r", encoding="utf-8-sig").read()))
+fgp = folium.FeatureGroup(name="Population")
+
+fgp.add_child(
+    folium.GeoJson(
+        data=open("mapping/world.json", "r", encoding="utf-8-sig").read(),
+        style_function=lambda x: {
+            "fillColor": "green"
+            if x["properties"]["POP2005"] < 1000000
+            else "orange"
+            if 1000000 <= x["properties"]["POP2005"] < 2000000
+            else "red"
+        },
+    )
 )
 
 
-map.add_child(fg)
+map.add_child(fgv)
+map.add_child(fgp)
+map.add_child(folium.LayerControl())
 
 map.save("Map1.html")
